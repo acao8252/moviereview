@@ -5,50 +5,47 @@ import json
 import requests
 from bs4 import BeautifulSoup
 
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-
 URL = "https://www.rottentomatoes.com/browse/in-theaters"
 
 now = datetime.now()
 dateTimeScraped = now.strftime("%d/%m/%Y %H:%M")
 dateScraped = now.strftime("%d-%m-%Y")
-#print(dateScraped)
+page = requests.get(URL)
+rottenTomatoSoup = BeautifulSoup(page.content, "html.parser")
 
-# this part is important because the page uses JS code to generate itself,
-# so we actually need to load the page in a browser before continuing
-driver=webdriver.Chrome(executable_path=r"C:\Users\jacob\Documents\Personal Files\chromedriver_win32\chromedriver.exe")
-driver.get(URL)
-elem = driver.find_element_by_class_name("mb-movie")
-page_source_text = driver.page_source
+scripts = rottenTomatoSoup.find_all("script")
 
-# now that we have the raw html of the laoded page, we can handle it using
-# our (much more convenient) BeautifulSoup:
-rottenTomatoSoup = BeautifulSoup(page_source_text, "html.parser")
-content = rottenTomatoSoup.find(id="content-column")
-moviesList = content.find_all("div", class_="mb-movie")
+# lord forgive me this hardcoding:
+#print(scripts[39].prettify())
 
-scrapedMovieDataList = list()
-for moviehtml in moviesList:
-    #print(moviehtml.prettify())
-    #print("working!")
+scriptWithInfo = scripts[39].text
+#print(scriptWithInfo)
+for i in range(len(scriptWithInfo)):
+    if(scriptWithInfo[i:i+6] == '[{"id"'):
+        strippedString=scriptWithInfo[i:]
+        break
+#print(strippedString)
+for i in range(len(strippedString)):
+    if(strippedString[i:i+3]=='}],'):
+        strippedString=strippedString[:i+2]
+        break
+#print(strippedString)
+infoList = json.loads(strippedString)
+#print(infoList)
 
-    scrapedTitle = moviehtml.find("h3", class_="movieTitle").text.strip()
+movieTupleList = list()
+for movie in infoList:
+    #print(movie)
+    scrapedTitle = movie['title']
+    scrapedTMeterScore = movie['tomatoScore']
 
-    try:
-        scrapedTMeterScore = moviehtml.find("span", class_="tMeterScore").text.strip()
-    except Exception:
-        continue
+    movieTuple = (scrapedTitle,scrapedTMeterScore, dateTimeScraped)
+    movieTupleList.append(movieTuple)
 
-    scrapedMovieData = (scrapedTitle, scrapedTMeterScore, dateTimeScraped)
-    #print(scrapedMovieData)
-    scrapedMovieDataList.append(scrapedMovieData)
-#print(scrapedMovieDataList)
-print(str(len(scrapedMovieDataList)), "movies scraped")
-
-#okay! We have a list of movies now!
+    #print(movieTuple)
+print(str(len(movieTupleList)), "movies scraped.")
 
 # now we just export to a json file:
 with open(('rottenTomatoesScrape'+dateScraped+'.json'), 'w') as f:
-    jsonScrapedMovieDataList = json.dump(scrapedMovieDataList, f)
+    jsonScrapedMovieDataList = json.dump(movieTupleList, f)
     #print(jsonScrapedMovieDataList)
