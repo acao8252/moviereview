@@ -2,10 +2,6 @@ import json
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
-from GenericScraper import GenericScraper
-
-class ImdbScraper(GenericScraper):
-    soup = self.get_soup(url)
 
 def scrape():
     URL = "https://www.imdb.com/showtimes/location"
