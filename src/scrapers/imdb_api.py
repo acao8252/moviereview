@@ -30,7 +30,7 @@ def imdb_api(query):
     tiny_poster = anchor.find("img")["src"]
     poster = re.sub("\_.*\_\.", "", tiny_poster)
 
-    data["id"] = tid
+    data["tid"] = tid
     data["title"] = title
     data["poster"] = poster
 
