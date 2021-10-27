@@ -34,21 +34,31 @@ def scrape():
     infoList = json.loads(strippedString)
     #print(infoList)
 
-    movieTupleList = list()
+    movieDataList = list()
     for movie in infoList:
         #print(movie)
         scrapedTitle = movie['title']
         scrapedTMeterScore = movie['tomatoScore']
+        scrapedVotes = 1 # I can't pull this from rottenTomatoes!
+        # setting this number to 1 so that don't have "divide by zero" errors
 
-        movieTuple = (scrapedTitle,scrapedTMeterScore, dateTimeScraped)
-        movieTupleList.append(movieTuple)
+        #movieTuple = (scrapedTitle,scrapedTMeterScore, dateTimeScraped)
+        movieData = {
+            "title": scrapedTitle,
+            "score": scrapedTMeterScore,
+            "votes": scrapedVotes,
+        }
+        movieDataList.append(movieData)
 
         #print(movieTuple)
-    print(str(len(movieTupleList)), "movies scraped.")
+    print(str(len(movieDataList)), "movies scraped.")
 
     # now we just export to a json file:
-    with open(('rottenTomatoesScrape'+dateScraped+'.json'), 'w') as f:
-        jsonScrapedMovieDataList = json.dump(movieTupleList, f)
+    #with open(('rottenTomatoesScrape'+dateScraped+'.json'), 'w') as f:
+        #jsonScrapedMovieDataList = json.dump(movieTupleList, f)
         #print(jsonScrapedMovieDataList)
-    return movieTupleList
-scrape()
+    return movieDataList
+
+if __name__ == "__main__":
+    from pprint import pprint
+    pprint(scrape())
