@@ -34,7 +34,7 @@ def manage():
         # keep going anyway though.
 
         # only using top ten since, again, to avoid ip blocking from imdb
-        for movie in movieList[0:2]:
+        for movie in movieList[0:10]:
             id+=1
 
             rawTitle = movie["title"] # for searching via the imdb api.
@@ -62,7 +62,15 @@ def manage():
 
             # now we need to determine if the movie we just scraped is already
             # in the data structure or not.
-            if(imdb_id in massiveDataDict['movies']):
+            all_movie_values = [value for elem in massiveDataDict['movies'] for value in elem.values()]
+            if(imdb_id in all_movie_values):
+
+                # now that we know the movie is already stored just a matter
+                # of getting that particular dictionary
+                for alreadyStoredMovie in massiveDataDict['movies']:
+                    if(alreadyStoredMovie['tid'] == imdb_id):
+                        break
+
                 # recompute average score. This is ugly.
                 # It averages the score over the current number of scrapers
                 # in the scrapers list.
@@ -88,6 +96,9 @@ def manage():
                         'scrapers':[scraperDict]
                         }
                 massiveDataDict['movies'].append(movieDict)
+
+    # sort the data by score so that the frontend won't have to
+    massiveDataDict['movies'] = sorted(massiveDataDict['movies'], key=lambda m: m['score'], reverse=True)
 
     # now that we've done all that work constructing a massive dictionary,
     # we export the whole thing to a JSON file.
