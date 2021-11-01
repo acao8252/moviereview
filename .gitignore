@@ -139,7 +139,7 @@ dmypy.json
 cython_debug/
 
 # JSON files
-json/*
+*.json
 
 ### react ###
 .DS_*
