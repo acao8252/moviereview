@@ -17,6 +17,7 @@ def manage():
     scrapersList = [
             "imdb",
             "rottenTomatoes",
+            "tmdb",
             ]
 
     # NOTE: probably don't need id since react frontend can just list order by score
