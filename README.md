@@ -30,3 +30,39 @@ Then run the following to start flask:
 ```bash
 flask run
 ```
+
+---
+
+### Python Virtual Environment
+
+This will help with making sure we are using the right version of the right package and keep things portable.
+
+First install virtualenv:
+
+```bash
+pip install virtualenv
+```
+
+Then create a virtual environment:
+
+```bash
+virtualenv venv
+```
+
+Next activate it:
+
+```bash
+source venv/bin/activate
+```
+
+And while it's activated, install the packages (if you haven't already done so):
+
+```bash
+pip install -r requirements.txt
+```
+
+Deactivating the virtual environment is as simple as:
+
+```bash
+deactivate
+```
