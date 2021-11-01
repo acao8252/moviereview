@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock title %}
+{% block body %}
+<div class="text-center">Last updated: {{ time_ago }}</div>
+<ul class="list-group">
+    {% for movie in recent.movies[0:10] %}
+    <li class="list-group-item">
+	<div class="d-flex">
+	    <div class="flex-shrink-0">
+		<img class="img-fluid" style="width:100px" src="{{ movie.poster }}">
+	    </div>
+	    <div class="flex-grow-1 ms-3">
+		<h4>
+		    {{ movie.title }}
+		</h4>
+	    {% for scraper in movie.scrapers %}
+	    <p>{{ scraper.name }} - {{ scraper.score }} ({{ scraper.votes }})</p>
+	    {% endfor %}
+	    </div>
+	    <h4>
+		{{ movie.score }}
+	    </h4>
+	</div>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock body %}
