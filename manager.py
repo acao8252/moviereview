@@ -53,14 +53,18 @@ def manage():
 
             imdb_dict = imdb_api(rawTitle)
             imdb_id = imdb_dict.get("tid")
-            processedTitle = imdb_dict.get("title")
+            title = imdb_dict.get("title")
             poster = imdb_dict.get("poster")
+            rating = imdb_dict.get("rating")
+            director = imdb_dict.get("director")
+            cast = imdb_dict.get("cast")
+            plot = imdb_dict.get("plot")
+            release = imdb_dict.get("release")
+            genre = imdb_dict.get("genre")
 
             # will need to call another html page for each of their ratings
             # only requires O(n) to get the three items above
             # will require O(n^2) to just get the rating which could get us ip blocked
-            #rating = imdb_api.search(movie.title).rating # encodes PG, R, etc
-
             scraperDict = {'name': scraper, 'score': score, 'votes': votes}
 
             # now we need to determine if the movie we just scraped is already
@@ -90,10 +94,15 @@ def manage():
                 # then we need to add a new movie to the data object:
                 movieDict = {
                         'tid':imdb_id,
-                        'title':processedTitle,
-                        #'rating':rating,
-                        'score':score,
+                        'title':title,
                         'poster':poster,
+                        'rating':rating,
+                        'score':score,
+                        'director':director,
+                        'cast':cast,
+                        'plot':plot,
+                        'release':release,
+                        'genre':genre,
                         #'trailer':trailer,
                         'scrapers':[scraperDict]
                         }

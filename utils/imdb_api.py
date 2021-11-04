@@ -1,10 +1,11 @@
-import imdb
+#import imdb
 import re
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 
 def imdb_api(query):
+    print(query)
     data = {
             "tid": None,
             "title": None,
@@ -16,6 +17,7 @@ def imdb_api(query):
             "release": None,
             "genre": None,
             }
+    query = query.replace(" ", "+")
     url = f"https://www.imdb.com/find?q={query}&s=tt&ttype=ft&ref_=fn_ft"
     html = requests.get(url).text
     soup = BeautifulSoup(html, "html.parser")
@@ -23,7 +25,16 @@ def imdb_api(query):
     search_table = soup.find("table", class_="findList")
 
     # return first movie on list
-    title = search_table.find("td", class_="result_text").find("a").text.strip()
+    # this try-catch is here because "The Reluctant Convert" is a TV Movie
+    # and the first url is only for theater movies
+    try:
+        title = search_table.find("td", class_="result_text").find("a").text.strip()
+    except AttributeError:
+        url = f"https://www.imdb.com/find?q={query}&ref_=nv_sr_sm"
+        html = requests.get(url).text
+        soup = BeautifulSoup(html, "html.parser")
+        search_table = soup.find("table", class_="findList")
+        title = search_table.find("td", class_="result_text").find("a").text.strip()
 
     # anchor with nested poster image
     anchor = search_table.find("td", class_="primary_photo").find("a", href=True)
@@ -35,6 +46,7 @@ def imdb_api(query):
     tiny_poster = anchor.find("img")["src"]
     poster = re.sub("\_.*\_\.", "", tiny_poster)
 
+    """
     # now use imdb api to get the rest
     ia = imdb.IMDb()
 
@@ -43,15 +55,30 @@ def imdb_api(query):
     mov = ia.get_movie(imdb_id)
 
     # get people
-    director = mov['directors'][0]['name']
+    director = mov.get('directors')[0].get('name')
     cast = list()
-    for person in mov['cast'][0:5]:
-        cast_name = person['name']
-        cast_role = person.currentRole['name']
+    for person in mov.get('cast')[0:5]:
+        cast_name = person.get('name')
+
+        # seems some just don't have roles
+        try:
+            cast_role = person.currentRole.get('name')
+        except AttributeError:
+            cast_role = None
+            print(tid)
+            print(title)
+            print(cast_name)
+
         person_id = person.getID()
         cast_member = ia.get_person(person_id)
-        tiny_cast_image = cast_member['headshot']
-        cast_image = re.sub("\_.*\_\.", "", tiny_cast_image)
+
+        # some just don't have headshots
+        try:
+            tiny_cast_image = cast_member.get('headshot')
+            cast_image = re.sub("\_.*\_\.", "", tiny_cast_image)
+        except TypeError:
+            cast_image = None
+
         cast.append(
                 {
                     'name': cast_name,
@@ -61,7 +88,7 @@ def imdb_api(query):
                 )
 
     # get rating e.g. PG-13
-    certs = mov['certificates']
+    certs = mov.get('certificates')
     rating = None
     for cert in certs:
         if(cert == "United States:G"):
@@ -78,31 +105,32 @@ def imdb_api(query):
             break
 
     # get the release date
-    raw_date = mov['original air date']
+    raw_date = mov.get('original air date')
     raw_date = raw_date.replace(" (USA)", "")
     release = datetime.strptime(raw_date, "%d %b %Y").timestamp()
     release = int(release)
 
     # get the plot
-    plot = mov['plot outline']
+    plot = mov.get('plot outline')
 
     # get the genre
-    genre = mov['genre']
+    genre = mov.get('genre')
+    """
 
     data["tid"] = tid
     data["title"] = title
     data["poster"] = poster
-    data["director"] = director
-    data["cast"] = cast
-    data["rating"] = rating
-    data["plot"] = plot
-    data["genre"] = genre
-    data["release"] = release
+    #data["director"] = director
+    #data["cast"] = cast
+    #data["rating"] = rating
+    #data["plot"] = plot
+    #data["genre"] = genre
+    #data["release"] = release
 
     return data
 
 if __name__ == "__main__":
     from pprint import pprint
-    query = "dune"
+    query = "venom let there be carnage"
     data = imdb_api(query)
     pprint(data)
