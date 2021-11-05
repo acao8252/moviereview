@@ -25,7 +25,7 @@ def manage():
 
     for scraper in scrapersList:
         # e.g. import scrapers.rottenTomatoesScraper
-        movieList = import_module(f"scrapers.{scraper}").scrape()
+        movieList = import_module(f"scrapers.{scraper}").scrape()[0:10]
 
         # for right now, movieList consists of a list of tuples in the form:
         # (title,score,dateTimeScraped)
@@ -61,6 +61,7 @@ def manage():
             plot = imdb_dict.get("plot")
             release = imdb_dict.get("release")
             genre = imdb_dict.get("genre")
+            runtime = imdb_dict.get("runtime")
 
             # will need to call another html page for each of their ratings
             # only requires O(n) to get the three items above
@@ -103,6 +104,7 @@ def manage():
                         'plot':plot,
                         'release':release,
                         'genre':genre,
+                        'runtime':runtime,
                         #'trailer':trailer,
                         'scrapers':[scraperDict]
                         }

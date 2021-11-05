@@ -1,4 +1,4 @@
-#import imdb
+import json
 import re
 import requests
 from bs4 import BeautifulSoup
@@ -16,6 +16,7 @@ def imdb_api(query):
             "plot": None,
             "release": None,
             "genre": None,
+            "runtime": None,
             }
     query = query.replace(" ", "+")
     url = f"https://www.imdb.com/find?q={query}&s=tt&ttype=ft&ref_=fn_ft"
@@ -42,95 +43,66 @@ def imdb_api(query):
     movie_url = anchor["href"]
     tid = re.search("\/title\/(tt\d+)\/", movie_url).group(1)
 
-    # url manipulation to get full-sized poster image
-    tiny_poster = anchor.find("img")["src"]
-    poster = re.sub("\_.*\_\.", "", tiny_poster)
+    url = f"https://www.imdb.com/title/{tid}/"
+    html = requests.get(url).text
+    soup = BeautifulSoup(html, "html.parser")
 
-    """
-    # now use imdb api to get the rest
-    ia = imdb.IMDb()
+    # find particular script tag with json elements
+    script = soup.find("script", type="application/ld+json").text
+    script = json.loads(script)
 
-    # api does not like the tt prefix in id
-    imdb_id = tid.replace("tt", "")
-    mov = ia.get_movie(imdb_id)
+    plot = script.get("description")
+    rating = script.get("contentRating")
+    poster = script.get("image")
+    genre = script.get("genre")
 
-    # get people
-    director = mov.get('directors')[0].get('name')
-    cast = list()
-    for person in mov.get('cast')[0:5]:
-        cast_name = person.get('name')
+    #TODO: grab director and cast from html (not this script) to get their roles and images
+    director = script.get("director")[0].get("name")
+    actors = script.get("actor")
+    if actors:
+        cast = list()
+        for actor in actors:
+            cast.append(actor.get("name"))
 
-        # seems some just don't have roles
+    # make sure the unix time is a nice whole number
+    release = script.get("datePublished")
+    if release:
+        release = datetime.strptime(release, "%Y-%m-%d").timestamp()
+        release = round(release)
+
+    # "duration" comes in the form of "PT1H37M"
+    # convert that to 5820 seconds
+    runtime = script.get("duration")
+    if runtime:
+        #TODO: need to rework this; maybe use a different script tag to get data
         try:
-            cast_role = person.currentRole.get('name')
+            match = re.search("PT(\d+)H(\d+)M", runtime)
+            hour = int(match.group(1)) * 3600
+            minute = int(match.group(2)) * 60
         except AttributeError:
-            cast_role = None
-            print(tid)
-            print(title)
-            print(cast_name)
-
-        person_id = person.getID()
-        cast_member = ia.get_person(person_id)
-
-        # some just don't have headshots
-        try:
-            tiny_cast_image = cast_member.get('headshot')
-            cast_image = re.sub("\_.*\_\.", "", tiny_cast_image)
-        except TypeError:
-            cast_image = None
-
-        cast.append(
-                {
-                    'name': cast_name,
-                    'role': cast_role,
-                    'image': cast_image
-                    }
-                )
-
-    # get rating e.g. PG-13
-    certs = mov.get('certificates')
-    rating = None
-    for cert in certs:
-        if(cert == "United States:G"):
-            rating = "G"
-            break
-        elif(cert == "United States:PG"):
-            rating = "PG"
-            break
-        elif(cert == "United States:PG-13"):
-            rating = "PG-13"
-            break
-        elif(cert == "United States:R"):
-            rating = "R"
-            break
-
-    # get the release date
-    raw_date = mov.get('original air date')
-    raw_date = raw_date.replace(" (USA)", "")
-    release = datetime.strptime(raw_date, "%d %b %Y").timestamp()
-    release = int(release)
-
-    # get the plot
-    plot = mov.get('plot outline')
-
-    # get the genre
-    genre = mov.get('genre')
-    """
+            match = re.search("PT(\d+)H", runtime)
+            hour = int(match.group(1)) * 3600
+            minute = 0
+        runtime = hour + minute
 
     data["tid"] = tid
     data["title"] = title
     data["poster"] = poster
-    #data["director"] = director
-    #data["cast"] = cast
-    #data["rating"] = rating
-    #data["plot"] = plot
-    #data["genre"] = genre
-    #data["release"] = release
+    data["director"] = director
+    data["cast"] = cast
+    data["rating"] = rating
+    data["plot"] = plot
+    data["genre"] = genre
+    data["release"] = release
+    data["runtime"] = runtime
 
     return data
 
 if __name__ == "__main__":
     from pprint import pprint
+    query = "the most reluctant convert"
+    query = "the last warning"
     query = "venom let there be carnage"
+    query = "many saints of newark"
     data = imdb_api(query)
     pprint(data)
