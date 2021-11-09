@@ -3,8 +3,9 @@ import time
 from datetime import datetime
 from utils.imdb_api import imdb_api
 from importlib import import_module
+import sys
 
-def manage():
+def manage(args):
     now = datetime.now()
     humanTime = now.strftime("%Y-%m-%d %H:%M")
     unixTime = round(time.time())
@@ -15,15 +16,24 @@ def manage():
 
     # one also needs to list the scrapers here:
     scrapersList = [
-            "imdb",
             "rottenTomatoes",
+            "imdb",
             "tmdb",
             ]
 
     # NOTE: probably don't need id since react frontend can just list order by score
     id = 0
 
-    for scraper in scrapersList:
+    if(len(args)==0):
+        thingsToScrape = scrapersList # if not specified, scrape all scrapers.
+    else:
+        thingsToScrape = list()
+        for arg in args:
+            if (arg in scrapersList):
+                thingsToScrape.append(arg)
+
+    print("Scraping from", str(thingsToScrape),'\n')
+    for scraper in thingsToScrape:
         # e.g. import scrapers.rottenTomatoesScraper
         movieList = import_module(f"scrapers.{scraper}").scrape()[0:10]
 
@@ -116,8 +126,12 @@ def manage():
     # now that we've done all that work constructing a massive dictionary,
     # we export the whole thing to a JSON file.
     # The JSON file will be named the current unix time.
-    with open(('json/'+str(unixTime)+'.json'),'w') as f:
+    with open('json/'+str(unixTime)+'.json','w') as f:
         json.dump(massiveDataDict, f)
 
 # if this is run as a script, we need this line to run the above funct
-manage()
+print("Usage: 'python manager.py [arguments]'")
+print("If no arguments are supplied, then the manager will scrape using all known scrapers.")
+print("If arguments ARE supplied, the manager will only scrape from arguments which match the scrapers' names.")
+print("Example: 'python manager.py rottenTomatoes' will only scrape using the Rotten Tomatoes Scraper.\n")
+manage(sys.argv[1:])

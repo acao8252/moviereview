@@ -1,18 +1,12 @@
-from datetime import datetime
-
 import json
-
-import requests
-from bs4 import BeautifulSoup
+from utils.utils import get_soup
 
 def scrape():
     URL = "https://www.rottentomatoes.com/browse/in-theaters"
 
-    now = datetime.now()
-    dateTimeScraped = now.strftime("%d/%m/%Y %H:%M")
-    dateScraped = now.strftime("%d-%m-%Y")
-    page = requests.get(URL)
-    rottenTomatoSoup = BeautifulSoup(page.content, "html.parser")
+    #page = requests.get(URL)
+    #rottenTomatoSoup = BeautifulSoup(page.content, "html.parser")
+    rottenTomatoSoup = get_soup(URL)
 
     scripts = rottenTomatoSoup.find_all("script")
 
@@ -39,8 +33,27 @@ def scrape():
         #print(movie)
         scrapedTitle = movie['title']
         scrapedTMeterScore = movie['tomatoScore']
-        scrapedVotes = 1 # I can't pull this from rottenTomatoes!
-        # setting this number to 1 so that don't have "divide by zero" errors
+
+        try:
+            # in order to find the number of votes, we're going to have to access
+            # each url given for the movie:
+            scrapedURL = 'https://www.rottentomatoes.com' + movie['url']
+            # this gives a working url
+            movieSoup = get_soup(scrapedURL)
+            #print(movieSoup.prettify())
+            ratingsJson = movieSoup.find('script', id='score-details-json').text
+            #print(ratingsJson)
+            ratingsDict = json.loads(ratingsJson)
+            #print(ratingsDict)
+            scrapedVotes = ratingsDict['modal']['audienceScoreAll']['ratingCount']
+            #print(str(scrapedVotes), "scraped votes")
+        except Exception as e:
+            # if there are any issues at all, let's set a default value of 1.
+            scrapedVotes = 1
+
+        # just to avoid divide by zero errors, we'll do this:
+        if(scrapedVotes==0):
+            scrapedVotes = 1
 
         #movieTuple = (scrapedTitle,scrapedTMeterScore, dateTimeScraped)
         movieData = {
@@ -59,6 +72,6 @@ def scrape():
         #print(jsonScrapedMovieDataList)
     return movieDataList
 
-if __name__ == "__main__":
-    from pprint import pprint
-    pprint(scrape())
+#if __name__ == "__main__":
+#    from pprint import pprint
+#    pprint(scrape())
