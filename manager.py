@@ -133,5 +133,5 @@ def manage(args):
 print("Usage: 'python manager.py [arguments]'")
 print("If no arguments are supplied, then the manager will scrape using all known scrapers.")
 print("If arguments ARE supplied, the manager will only scrape from arguments which match the scrapers' names.")
-print("Example: 'python manager.py rottenTomatoes' will only scrape using the Rotten Tomatoes Scraper.\n")
+print("Example: 'python manager.py rottenTomatoes' will only scrape using the Rotten Tomatoes scraper.\n")
 manage(sys.argv[1:])
