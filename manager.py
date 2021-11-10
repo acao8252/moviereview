@@ -2,6 +2,7 @@ import json
 import time
 from datetime import datetime
 from utils.imdb_api import imdb_api
+from utils.youtube_api import get_trailer
 from importlib import import_module
 import sys
 
@@ -101,8 +102,13 @@ def manage(args):
 
             # if we didn't find an instance of the movie in the data object:
             else:
+                # create a score:
                 score = score/len(scrapersList)
                 score = round(score)
+
+                # we also need to find a link to the youtube:
+                trailer = get_trailer(title)
+
                 # then we need to add a new movie to the data object:
                 movieDict = {
                         'tid':imdb_id,
@@ -116,7 +122,7 @@ def manage(args):
                         'release':release,
                         'genre':genre,
                         'runtime':runtime,
-                        #'trailer':trailer,
+                        'trailer':trailer,
                         'scrapers':[scraperDict]
                         }
                 massiveDataDict['movies'].append(movieDict)

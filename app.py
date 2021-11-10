@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Flask
 from flask import render_template, redirect, url_for, abort
 from utils.utils import ago
@@ -5,6 +6,24 @@ import json
 import os
 
 app = Flask(__name__)
+
+# jinja filter
+# convert unixtime to humantime for release date
+@app.template_filter('conv_releasedate')
+def conv_releasedate(unixtime):
+     return datetime.fromtimestamp(unixtime).strftime('%b %d, %Y')
+
+# convert unixtime to humantime for runtime
+@app.template_filter('conv_runtime')
+def conv_runtime(seconds):
+    m, s = divmod(seconds, 60)
+    h, m = divmod(m, 60)
+    h = str(h)+'h'
+    if m:
+        m = f' {m}m'
+    else:
+        m = ""
+    return f'{h}{m}'
 
 @app.route("/")
 @app.route("/<int:page>")
