@@ -3,7 +3,7 @@ from utils.utils import get_soup
 def scrape():
     url = "https://www.imdb.com/showtimes/location"
 
-    soup = get_soup(url)
+    soup = get_soup(url.text)
     raw_movie_list = soup.find_all("div", class_="lister-item")
 
     movie_list = list()
