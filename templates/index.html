@@ -83,12 +83,16 @@
 		<br>
 		Plot: {{ movie.plot }}
 		<br>
-		Runtime: {{ movie.runtime }}
+		Runtime: {{ movie.runtime | conv_runtime }}
 		<br>
-		Release: {{ movie.release }}
+		Release: {{ movie.release | conv_releasedate }}
 		<br>
 		Rating: {{ movie.rating }}
 		<br>
+		{% if movie.trailer %}
+		Trailer: <iframe src="{{ movie.trailer }}" style="width:auto; height:auto"></iframe>
+		<br>
+		{% endif %}
 		{% if recent.genre %}
 		Genre: {% for genre in movie.genre %}{{genre}} {% endfor %}
 		{% endif %}
