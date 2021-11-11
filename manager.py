@@ -91,22 +91,60 @@ def manage(args):
                     if(alreadyStoredMovie['tid'] == imdb_id):
                         break
 
-                # recompute average score. This is ugly.
-                # It averages the score over the current number of scrapers
-                # in the scrapers list.
-                alreadyStoredMovie['score'] += score/len(scrapersList)
-                alreadyStoredMovie['score'] = round(alreadyStoredMovie['score'])
-
                 # and add scraperDict to the list of scraperDicts:
                 alreadyStoredMovie['scrapers'].append(scraperDict)
 
+                # we're gonna take a different approach now to recompute score
+                # a few basic necessities:
+                # we want score to be an average weighted by number of users
+                # however, we don't want any one source to dominate;
+                # for instance, IMDB's massive userbase will skew any
+                # resulting score in IMDB's favor, so our score would basically
+                # just be IMDB's opinion of the movie.
+                # therefore, we will also compute the flat average of
+                # each website's score.
+                # we will then average this average with the weighted average.
+                # we call this the "triple average" system
+
+                # first, the weighted average:
+                tempScore1 = 0.0
+                tempTotalVotes = 0
+                for s in alreadyStoredMovie['scrapers']:
+                    # these next 6 lines seem unimportant, but they fix
+                    # this one issue where the scrapers report that the score
+                    # is 'tbd', a string. We need numbers to compute the score,
+                    # so these strings really gum up the works.
+                    tmpVotes = s['votes']
+                    tmpScore = s['score']
+                    if (type(tmpVotes) != type(1)):
+                        tmpVotes = 1
+                    if (type(tmpScore) != type(1)):
+                        try:
+                            tmpScore = float(tmpScore)
+                        except ValueError as e:
+                            tmpScore = 0
+                    tempScore1+=float(tmpVotes * tmpScore)
+                    tempTotalVotes += tmpVotes
+                tempScore1 = tempScore1/float(tempTotalVotes)
+
+                # next, the straight average:
+                tempScore2 = 0.0
+                for s in alreadyStoredMovie['scrapers']:
+                    tmpScore = s['score']
+                    if(type(tmpScore)!=type(1)):
+                        try:
+                            tmpScore = float(tmpScore)
+                        except ValueError as e:
+                            tmpScore = 0
+                    tempScore2+=float(tmpScore)
+                tempScore2 = tempScore2/float(len(alreadyStoredMovie['scrapers']))
+
+                # and store it in our data struct.
+                alreadyStoredMovie['score'] = round(((tempScore1 + tempScore2) / 2), 2)
+
             # if we didn't find an instance of the movie in the data object:
             else:
-                # create a score:
-                score = score/len(scrapersList)
-                score = round(score)
-
-                # we also need to find a link to the youtube:
+                # we need to find a link to the youtube:
                 trailer = get_trailer(title)
 
                 # then we need to add a new movie to the data object:

@@ -32,7 +32,7 @@ def scrape():
     for movie in infoList:
         #print(movie)
         scrapedTitle = movie['title']
-        scrapedTMeterScore = movie['tomatoScore']
+        scrapedScore = movie['tomatoScore']
 
         try:
             # in order to find the number of votes, we're going to have to access
@@ -45,8 +45,16 @@ def scrape():
             #print(ratingsJson)
             ratingsDict = json.loads(ratingsJson)
             #print(ratingsDict)
-            scrapedVotes = ratingsDict['modal']['audienceScoreAll']['ratingCount']
-            #print(str(scrapedVotes), "scraped votes")
+
+            # now we record the score and votes.
+            # note that score has already been recorded.
+            # Assuming nothing fails,
+            # we'll just overwrite it here.
+            scrapedScore = ratingsDict['scoreboard']['audienceScore']
+            scrapedVotes = ratingsDict['scoreboard']['audienceCount']
+
+            #print(str(scrapedVotes), "scraped votes for", scrapedTitle)
+            #print(str(scrapedScore), "scraped score for", scrapedTitle)
         except Exception as e:
             # if there are any issues at all, let's set a default value of 1.
             scrapedVotes = 1
@@ -55,10 +63,10 @@ def scrape():
         if(scrapedVotes==0):
             scrapedVotes = 1
 
-        #movieTuple = (scrapedTitle,scrapedTMeterScore, dateTimeScraped)
+        #movieTuple = (scrapedTitle,scrapedScore, dateTimeScraped)
         movieData = {
             "title": scrapedTitle,
-            "score": scrapedTMeterScore,
+            "score": scrapedScore,
             "votes": scrapedVotes,
         }
         movieDataList.append(movieData)
