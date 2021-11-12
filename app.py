@@ -25,6 +25,12 @@ def conv_runtime(seconds):
         m = ""
     return f'{h}{m}'
 
+@app.template_filter('conv_quotes')
+def conv_quotes(string):
+    string = string.replace("&apos;", "\'")
+    string = string.replace("&quot;", "\"")
+    return string
+
 @app.route("/")
 @app.route("/<int:page>")
 def index(page=0):

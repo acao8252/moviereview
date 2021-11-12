@@ -42,85 +42,97 @@
        });
     </script>
     -->
-    <div class="text-center">Last updated: {{ time_ago }}</div>
-    <nav aria-label="Page navigation example">
-	<ul class="pagination justify-content-center">
-	    <li class="page-item{% if page < 1 %} disabled{% endif %}">
-		<a class="page-link" href="{% if page %}/{{ page-1 }}{% endif %}" aria-label="Previous">
-		    <span aria-hidden="true">&laquo;</span>
-		</a>
-	    </li>
-	    <li class="page-item disabled">
-		<a class="page-link" href="">
-		    {{ page }}
-		</a>
-	    </li>
-	    <li class="page-item">
-		<a class="page-link" href="{{ page + 1 }}" aria-label="Next">
-		    <span aria-hidden="true">&raquo;</span>
-		</a>
-	    </li>
-	</ul>
-    </nav>
+    <ul class="nav justify-content-center">
+	<li class="nav-item">
+	    <a class="nav-link" href="{{ page + 1 }}">Older</a>
+	</li>
+	<li class="nav-item">
+	    <a class="nav-link disabled">Last updated: {{ time_ago }}</a>
+
+	</li>
+	<li class="nav-item">
+	    <a class="nav-link" href="{% if page %}/{{ page-1 }}{% endif %}">Newer</a>
+	</li>
+    </ul>
     <ul class="list-group">
 	{% for movie in recent.movies[0:10] %}
 	<li class="list-group-item">
 	    <div class="d-flex">
 		<div class="flex-shrink-0">
 		    <img class="img-fluid" style="width:100px" src="{{ movie.poster }}">
+		    {% if movie.trailer %}
+		    <br>
+		    <br>
+			<div class="row justify-content-center">
+
+				<!-- Button trigger modal -->
+				<button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modal{{ movie.tid }}">
+				    <i class="bi-youtube"></i> Trailer
+				</button>
+		    </div>
+		</div>
+
+		<!-- Modal -->
+		<div class="modal fade" id="modal{{ movie.tid }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		    <div class="modal-dialog modal-lg">
+			<div class="modal-content">
+			    <div class="modal-header">
+				<h5 class="modal-title" id="exampleModalToggleLabel">{{ movie.title }} Trailer</h5>
+
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			    </div>
+			    <div class="modal-body">
+				<div class="ratio ratio-16x9">
+				    <iframe src="{{ movie.trailer }}"></iframe>
+				</div>
+			    </div>
+			</div>
+		    </div>
+		    {% endif %}
 		</div>
 		<div class="flex-grow-1 ms-3">
 		    <h4>
 			{{ movie.title }}
 		    </h4>
-		    {% for scraper in movie.scrapers %}
-		    <p>{{ scraper.name }} - {{ scraper.score }} ({{ scraper.votes }})</p>
+		    {{ movie.rating }} | {{ movie.runtime | conv_runtime }} | {{ movie.release | conv_releasedate }}
+		    <br>
+		    Director: <span class="badge rounded-pill bg-dark">{{ movie.director }}</span>
+		    <br>
+		    {% if movie.cast %}Starring: {% for cast in movie.cast %}<span class="badge rounded-pill bg-dark">{{cast}}</span>{% endfor %}{% endif %}
+		    <br>
+		    Plot: {{ movie.plot | conv_quotes }}
+		    <br>
+		    {% if movie.genre %}
+		    Genre: {% for genre in movie.genre %}<span class="badge rounded-pill bg-secondary">{{genre}}</span>{% endfor %}
+		    {% endif %}
+		    <br>
+		</div>
+		<div class="ms-3">
+		    <h4>
+			<span class="badge bg-primary">{{ movie.score }}</span>
+		    </h4>
+		    {% for scraper in movie.scrapers | sort(attribute='score', reverse=True) %}
+		    <p class="text-end" style="margin:0px">
+		    <img src="{{ url_for('static', filename='scrapers/' + scraper.name + '.png')}}" style="height:1em">
+		    {{ scraper.score }}
+		    <br>
+		    </p>
 		    {% endfor %}
 		</div>
-		Director: {{ movie.director }}
-		<br>
-		{% if movie.cast %}Starring: {% for cast in movie.cast %}{{cast}} {% endfor %}{% endif %}
-		<br>
-		Plot: {{ movie.plot }}
-		<br>
-		Runtime: {{ movie.runtime | conv_runtime }}
-		<br>
-		Release: {{ movie.release | conv_releasedate }}
-		<br>
-		Rating: {{ movie.rating }}
-		<br>
-		{% if movie.trailer %}
-		Trailer: <iframe src="{{ movie.trailer }}" style="width:auto; height:auto"></iframe>
-		<br>
-		{% endif %}
-		{% if recent.genre %}
-		Genre: {% for genre in movie.genre %}{{genre}} {% endfor %}
-		{% endif %}
-		<h4>
-		    {{ movie.score }}
-		</h4>
 	    </div>
 	</li>
 	{% endfor %}
     </ul>
-    <br>
-    <nav aria-label="Page navigation example">
-	<ul class="pagination justify-content-center">
-	    <li class="page-item{% if page < 1 %} disabled{% endif %}">
-		<a class="page-link" href="{% if page %}/{{ page-1 }}{% endif %}" aria-label="Previous">
-		    <span aria-hidden="true">&laquo;</span>
-		</a>
-	    </li>
-	    <li class="page-item disabled">
-		<a class="page-link" href="">
-		    {{ page }}
-		</a>
-	    </li>
-	    <li class="page-item">
-		<a class="page-link" href="{{ page + 1 }}" aria-label="Next">
-		    <span aria-hidden="true">&raquo;</span>
-		</a>
-	    </li>
-	</ul>
-    </nav>
+    <ul class="nav justify-content-center">
+	<li class="nav-item">
+	    <a class="nav-link" href="{{ page + 1 }}">Older</a>
+	</li>
+	<li class="nav-item">
+	    <a class="nav-link disabled">Last updated: {{ time_ago }}</a>
+
+	</li>
+	<li class="nav-item">
+	    <a class="nav-link" href="{% if page %}/{{ page-1 }}{% endif %}">Newer</a>
+	</li>
+    </ul>
     {% endblock body %}

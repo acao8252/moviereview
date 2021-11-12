@@ -56,11 +56,13 @@ def imdb_api(query):
     poster = script.get("image")
     genre = script.get("genre")
 
-    #TODO: grab director and cast from html (not this script) to get their roles and images
-    director = script.get("director")[0].get("name")
+    try:
+        director = script.get("director")[0].get("name")
+    except TypeError:
+        director = None
     actors = script.get("actor")
+    cast = list()
     if actors:
-        cast = list()
         for actor in actors:
             cast.append(actor.get("name"))
 

@@ -36,7 +36,7 @@ def manage(args):
     print("Scraping from", str(thingsToScrape),'\n')
     for scraper in thingsToScrape:
         # e.g. import scrapers.rottenTomatoesScraper
-        movieList = import_module(f"scrapers.{scraper}").scrape()[0:10]
+        movieList = import_module(f"scrapers.{scraper}").scrape()
 
         for movie in movieList:
 
@@ -110,7 +110,7 @@ def manage(args):
                 tempScore2 = tempScore2 - (tempScore2 / len(scrapersList) * scrapersWeight)
 
                 # and store it in our data struct.
-                alreadyStoredMovie['score'] = round(((tempScore1 + tempScore2) / 2), 2)
+                alreadyStoredMovie['score'] = round(((tempScore1 + tempScore2) / 2), 1)
 
             # if we didn't find an instance of the movie in the data object:
             else:
@@ -118,7 +118,7 @@ def manage(args):
                 trailer = get_trailer(title)
 
                 # also need to give weighted score for movies with only one scraper
-                score = round(score/len(scrapersList), 2)
+                score = round(score/len(scrapersList), 1)
 
                 # then we need to add a new movie to the data object:
                 movieDict = {
