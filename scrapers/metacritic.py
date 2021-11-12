@@ -13,7 +13,7 @@ def scrape():
 		#scrape the meta scores
 		score = int(movies.select('a.metascore_anchor div')[0].text)
 		#scrape the user scores.
-		votes = movies.select('a.metascore_anchor div')[2].text
+		votes = int(movies.select('a.metascore_anchor div')[2].text)
 		movie_data = {
 		    "title": title,
 		    "score": score,
