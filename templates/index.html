@@ -59,16 +59,18 @@
 	<li class="list-group-item">
 	    <div class="d-flex">
 		<div class="flex-shrink-0">
+		    <a href="https://imdb.com/title/{{ movie.tid }}">
 		    <img class="img-fluid" style="width:100px" src="{{ movie.poster }}">
+		    </a>
 		    {% if movie.trailer %}
 		    <br>
 		    <br>
-			<div class="row justify-content-center">
+		    <div class="row justify-content-center">
 
-				<!-- Button trigger modal -->
-				<button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modal{{ movie.tid }}">
-				    <i class="bi-youtube"></i> Trailer
-				</button>
+			<!-- Button trigger modal -->
+			<button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modal{{ movie.tid }}">
+			    <i class="bi-youtube"></i> Trailer
+			</button>
 		    </div>
 		</div>
 
@@ -91,10 +93,12 @@
 		    {% endif %}
 		</div>
 		<div class="flex-grow-1 ms-3">
-		    <h4>
-			{{ movie.title }}
-		    </h4>
-		    {{ movie.rating }} | {{ movie.runtime | conv_runtime }} | {{ movie.release | conv_releasedate }}
+		    <a href="https://imdb.com/title/{{ movie.tid }}" style="text-decoration: none; color:#212529">
+			<h4>
+			    {{ movie.title }}
+			</h4>
+		    </a>
+		    <span style="border:1px solid; padding:3px; color:gray">{{ movie.rating }}</span> | {{ movie.runtime | conv_runtime }} | {{ movie.release | conv_releasedate }}
 		    <br>
 		    Director: <span class="badge rounded-pill bg-dark">{{ movie.director }}</span>
 		    <br>

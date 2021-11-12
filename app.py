@@ -48,3 +48,6 @@ def index(page=0):
 
     time_ago = ago(recent['unixTime'])
     return render_template('index.html', recent=recent, page=page, time_ago=time_ago)
+@app.route("/contact")
+def contact():
+    return render_template('contact.html')
