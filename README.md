@@ -4,6 +4,7 @@ Movie Review is a movie score aggregator that pulls movie scores of movies curre
 - Rotten Tomatoes
 - IMDB
 - TMDB
+- Metacritic
 
 ---
 
