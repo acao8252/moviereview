@@ -60,32 +60,30 @@
 	    <div class="d-flex">
 		<div class="flex-shrink-0">
 		    <a href="https://imdb.com/title/{{ movie.tid }}">
-		    <img class="img-fluid" style="width:100px" src="{{ movie.poster }}">
+			<img class="img-fluid" style="width:100px" src="{{ movie.poster }}">
 		    </a>
 		    {% if movie.trailer %}
-		    <br>
-		    <br>
-		    <div class="row justify-content-center">
+			<div class="d-grid gap-2" style="margin-top:3px">
 
 			<!-- Button trigger modal -->
 			<button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modal{{ movie.tid }}">
 			    <i class="bi-youtube"></i> Trailer
 			</button>
 		    </div>
-		</div>
 
-		<!-- Modal -->
-		<div class="modal fade" id="modal{{ movie.tid }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-		    <div class="modal-dialog modal-lg">
-			<div class="modal-content">
-			    <div class="modal-header">
-				<h5 class="modal-title" id="exampleModalToggleLabel">{{ movie.title }} Trailer</h5>
+		    <!-- Modal -->
+		    <div class="modal fade" id="modal{{ movie.tid }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-lg">
+			    <div class="modal-content">
+				<div class="modal-header">
+				    <h5 class="modal-title" id="exampleModalToggleLabel">{{ movie.title }} Trailer</h5>
 
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			    </div>
-			    <div class="modal-body">
-				<div class="ratio ratio-16x9">
-				    <iframe src="{{ movie.trailer }}"></iframe>
+				    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+				    <div class="ratio ratio-16x9">
+					<iframe src="{{ movie.trailer }}"></iframe>
+				    </div>
 				</div>
 			    </div>
 			</div>
@@ -112,15 +110,20 @@
 		    <br>
 		</div>
 		<div class="ms-3">
-		    <h4>
-			<span class="badge bg-primary">{{ movie.score }}</span>
-		    </h4>
+		    <div class="row">
+			<h4>
+			    <span class="badge bg-primary">{{ movie.score }}</span>
+			</h4>
+		    </div>
 		    {% for scraper in movie.scrapers | sort(attribute='score', reverse=True) %}
-		    <p class="text-end" style="margin:0px">
-		    <img src="{{ url_for('static', filename='scrapers/' + scraper.name + '.png')}}" style="height:1em">
-		    {{ scraper.score }}
-		    <br>
-		    </p>
+		    <div class="row">
+			<div class="col-6">
+			    <img src="{{ url_for('static', filename='scrapers/' + scraper.name + '.png')}}" style="height:1em">
+			</div>
+			<div class="col-6">
+			    {{ scraper.score }}
+			</div>
+		    </div>
 		    {% endfor %}
 		</div>
 	    </div>

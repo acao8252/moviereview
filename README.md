@@ -8,6 +8,12 @@ Movie Review is a movie score aggregator that pulls movie scores of movies curre
 
 ---
 
+### Screenshots
+
+![homepage](/static/screenshots/homepage.png)
+
+![contactpage](/static/screenshots/contactpage.png)
+
 ### Flask Help
 
 Make sure to run the following in the terminal to prep the flask server:
