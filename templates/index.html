@@ -52,7 +52,7 @@
 	    </li>
 	    <li class="page-item disabled">
 		<a class="page-link" href="">
-		    {{ page }}
+		    {{ page+1 }}
 		</a>
 	    </li>
 	    <li class="page-item">
@@ -62,7 +62,50 @@
 	    </li>
 	</ul>
     </nav>
-    <ul class="list-group">
+    <br>
+    <table style="width:100%" border="1"> 
+    	<tr>
+    		<th>Movie</th>
+    		<th>Reviews</th>
+    		<th>Movie Information</th>
+    		<th>Movie Trailer</th>
+    	</tr>
+    	{% for movie in recent.movies[0:10] %}
+    	<tr>
+    		<td>{{ movie.title }}
+    		<div class="flex-shrink-0">
+		    	<img class="img-fluid" style="width:100px" src="{{ movie.poster }}">
+			</div>
+			</td>
+    		<td>{% for scraper in movie.scrapers %}
+    				<p>{{ scraper.name }} - {{ scraper.score }} ({{ scraper.votes }})</p>
+    				<b>Total Score: {{ movie.score }}</b>
+		    	{% endfor %} 
+		    </td>
+		    <td>Director: {{ movie.director }}
+		    	<br>
+		    	{% if movie.cast %}Starring: {% for cast in movie.cast %}{{cast}} {% endfor %}{% endif %}
+		    	<br>
+		    	Plot: {{ movie.plot }}
+		    	<br>
+		    	Runtime: {{ movie.runtime | conv_runtime }}
+		    	<br>
+		    	Release: {{ movie.release | conv_releasedate }}
+		    </td>
+		    <td>{% if movie.trailer %}
+		    	<iframe src="{{ movie.trailer }}" style="width:auto; height:auto"></iframe>
+		    	{% else %}
+		    	<p> No available trailer</p>
+		    	{% endif %}
+		    </td>
+		</tr>
+		{% endfor %}
+	</table>
+
+
+
+
+<!--      <ul class="list-group">
 	{% for movie in recent.movies[0:10] %}
 	<li class="list-group-item">
 	    <div class="d-flex">
@@ -103,6 +146,7 @@
 	</li>
 	{% endfor %}
     </ul>
+ -->
     <br>
     <nav aria-label="Page navigation example">
 	<ul class="pagination justify-content-center">
@@ -113,7 +157,7 @@
 	    </li>
 	    <li class="page-item disabled">
 		<a class="page-link" href="">
-		    {{ page }}
+		    {{ page+1 }}
 		</a>
 	    </li>
 	    <li class="page-item">
