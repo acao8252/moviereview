@@ -34,6 +34,14 @@ def conv_quotes(string):
 @app.route("/")
 @app.route("/<int:page>")
 def index(page=0):
+    colors = [
+            '220,53,69', #red
+            '255,193,7', #yellow
+            '25,135,84', #green
+            '13,110,253', #blue
+            '102,16,242', #indigo
+            ]
+
     jsons = sorted(os.listdir('json'), reverse=True)
 
     if page and page > 0:
@@ -46,8 +54,47 @@ def index(page=0):
     except IndexError:
         abort(404)
 
+    top_five = recent.get('movies')[0:5]
+
+    graph_y = list()
+    graph_x = list()
+    color_count = 0
+    for movie in top_five:
+        top_movie = {
+                'title': movie.get('title'),
+                }
+        if(recent.get('unixTime') not in graph_y):
+            graph_y.append(recent.get('unixTime'))
+        scores = list()
+        scores.append(movie.get('score'))
+        count = 1
+        while(count < 5):
+            try:
+                next_recent = json.load(open('json/' + jsons[index+count]))
+                next_movies = next_recent.get('movies')
+                for next_movie in next_movies:
+                    if(next_recent.get('unixTime') not in graph_y):
+                        graph_y.append(next_recent.get('unixTime'))
+                    if(next_movie.get('tid') == movie.get('tid')):
+                        scores.append(next_movie.get('score'))
+                        break
+            except IndexError:
+                break
+            count += 1
+        graph_x.append({
+            'title': movie.get('title'),
+            'scores': scores,
+            'color': colors[color_count]
+            })
+        color_count += 1
+
+
+    from pprint import pprint
+    pprint(graph_y)
+    pprint(graph_x)
     time_ago = ago(recent['unixTime'])
-    return render_template('index.html', recent=recent, page=page, time_ago=time_ago)
+    return render_template('index.html', recent=recent, graph_y=graph_y, graph_x=graph_x, page=page, time_ago=time_ago)
+
 @app.route("/contact")
 def contact():
     return render_template('contact.html')

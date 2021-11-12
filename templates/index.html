@@ -2,144 +2,151 @@
 {% block title %}Home{% endblock title %}
 {% block body %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!--
-    <canvas id="myChart" width="400" height="100"></canvas>
-    <script>
-	const ctx = document.getElementById('myChart').getContext('2d');
-       const myChart = new Chart(ctx, {
-       type: 'bar',
-       data: {
-       labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-       datasets: [{
-       label: '# of Votes',
-       data: [12, 19, 3, 5, 2, 3],
-       backgroundColor: [
-       'rgba(255, 99, 132, 0.2)',
-       'rgba(54, 162, 235, 0.2)',
-       'rgba(255, 206, 86, 0.2)',
-       'rgba(75, 192, 192, 0.2)',
-       'rgba(153, 102, 255, 0.2)',
-       'rgba(255, 159, 64, 0.2)'
-       ],
-       borderColor: [
-       'rgba(255, 99, 132, 1)',
-       'rgba(54, 162, 235, 1)',
-       'rgba(255, 206, 86, 1)',
-       'rgba(75, 192, 192, 1)',
-       'rgba(153, 102, 255, 1)',
-       'rgba(255, 159, 64, 1)'
-       ],
-       borderWidth: 1
-       }]
-       },
-       options: {
-       scales: {
-       y: {
-       beginAtZero: true
-       }
-       }
-       }
-       });
-    </script>
-    -->
-    <ul class="nav justify-content-center">
-	<li class="nav-item">
-	    <a class="nav-link" href="{{ page + 1 }}">Older</a>
-	</li>
-	<li class="nav-item">
-	    <a class="nav-link disabled">Last updated: {{ time_ago }}</a>
+<canvas id="myChart" width="400" height="100"></canvas>
+<script>
+    const ctx = document.getElementById('myChart').getContext('2d');
+    const chart = new Chart(ctx, {
+	    type: 'line',
+	    data: {
+		    labels: [
+			    {{ page }},
+			    {{ page+1 }},
+			    {{ page+2 }},
+			    {{ page+3 }},
+			    {{ page+4 }},
+			],
+		    datasets: [
+			    {% for x in graph_x %}
+			    {
+				    label: '{{ x.title | tojson }}',
+					data: {{ x.scores }},
+					backgroundColor: [
+						'rgba({{ x.color }},1)',
+					    ],
+					borderColor: [
+						'rgba({{ x.color }},1)',
+					    ],
+					borderWidth: 1
+				},
+			    {% endfor %}
+			]
+		},
+	    options: {
+		    scales: {
+			    y: {
+				    position: 'right',
+				    beginAtZero: true,
+				    max: 100,
+				},
+			    x: {
+				    reverse: true,
+				}
+			}
+		}
+	});
+    chart.options.animation = false; // disables all animations
+    chart.options.animations.colors = false; // disables animation defined by the collection of 'colors' properties
+    chart.options.animations.x = false; // disables animation defined by the 'x' property
+    chart.options.transitions.active.animation.duration = 0; // disables the animation for 'active' mode
+</script>
+<ul class="nav justify-content-center">
+    <li class="nav-item">
+	<a class="nav-link" href="{{ page + 1 }}">Older</a>
+    </li>
+    <li class="nav-item">
+	<a class="nav-link disabled">Last updated: {{ time_ago }}</a>
 
-	</li>
-	<li class="nav-item">
-	    <a class="nav-link" href="{% if page %}/{{ page-1 }}{% endif %}">Newer</a>
-	</li>
-    </ul>
-    <ul class="list-group">
-	{% for movie in recent.movies[0:10] %}
-	<li class="list-group-item">
-	    <div class="d-flex">
-		<div class="flex-shrink-0">
-		    <a href="https://imdb.com/title/{{ movie.tid }}">
-			<img class="img-fluid" style="width:100px" src="{{ movie.poster }}">
-		    </a>
-		    {% if movie.trailer %}
-			<div class="d-grid gap-2" style="margin-top:3px">
+    </li>
+    <li class="nav-item">
+	<a class="nav-link" href="{% if page %}/{{ page-1 }}{% endif %}">Newer</a>
+    </li>
+</ul>
+<ul class="list-group">
+    {% for movie in recent.movies[0:10] %}
+    <li class="list-group-item">
+	<div class="d-flex">
+	    <div class="flex-shrink-0">
+		<a href="https://imdb.com/title/{{ movie.tid }}">
+		    <img class="rounded img-fluid" style="width:100px" src="{{ movie.poster }}">
+		</a>
+		{% if movie.trailer %}
+		<div class="d-grid gap-2" style="margin-top:3px">
 
-			<!-- Button trigger modal -->
-			<button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modal{{ movie.tid }}">
-			    <i class="bi-youtube"></i> Trailer
-			</button>
-		    </div>
+		    <!-- Button trigger modal -->
+		    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modal{{ movie.tid }}">
+			<i class="bi-youtube"></i> Trailer
+		    </button>
+		</div>
 
-		    <!-- Modal -->
-		    <div class="modal fade" id="modal{{ movie.tid }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-			<div class="modal-dialog modal-lg">
-			    <div class="modal-content">
-				<div class="modal-header">
-				    <h5 class="modal-title" id="exampleModalToggleLabel">{{ movie.title }} Trailer</h5>
+		<!-- Modal -->
+		<div class="modal fade" id="modal{{ movie.tid }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		    <div class="modal-dialog modal-lg">
+			<div class="modal-content">
+			    <div class="modal-header">
+				<h5 class="modal-title" id="exampleModalToggleLabel">{{ movie.title }} Trailer</h5>
 
-				    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-				</div>
-				<div class="modal-body">
-				    <div class="ratio ratio-16x9">
-					<iframe src="{{ movie.trailer }}"></iframe>
-				    </div>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			    </div>
+			    <div class="modal-body">
+				<div class="ratio ratio-16x9">
+				    <iframe src="{{ movie.trailer }}"></iframe>
 				</div>
 			    </div>
 			</div>
 		    </div>
-		    {% endif %}
 		</div>
-		<div class="flex-grow-1 ms-3">
-		    <a href="https://imdb.com/title/{{ movie.tid }}" style="text-decoration: none; color:#212529">
-			<h4>
-			    {{ movie.title }}
-			</h4>
-		    </a>
-		    <span style="border:1px solid; padding:3px; color:gray">{{ movie.rating }}</span> | {{ movie.runtime | conv_runtime }} | {{ movie.release | conv_releasedate }}
-		    <br>
-		    Director: <span class="badge rounded-pill bg-dark">{{ movie.director }}</span>
-		    <br>
-		    {% if movie.cast %}Starring: {% for cast in movie.cast %}<span class="badge rounded-pill bg-dark">{{cast}}</span>{% endfor %}{% endif %}
-		    <br>
-		    Plot: {{ movie.plot | conv_quotes }}
-		    <br>
-		    {% if movie.genre %}
-		    Genre: {% for genre in movie.genre %}<span class="badge rounded-pill bg-secondary">{{genre}}</span>{% endfor %}
-		    {% endif %}
-		    <br>
-		</div>
-		<div class="ms-3">
-		    <div class="row">
-			<h4>
-			    <span class="badge bg-primary">{{ movie.score }}</span>
-			</h4>
-		    </div>
-		    {% for scraper in movie.scrapers | sort(attribute='score', reverse=True) %}
-		    <div class="row">
-			<div class="col-6">
-			    <img src="{{ url_for('static', filename='scrapers/' + scraper.name + '.png')}}" style="height:1em">
-			</div>
-			<div class="col-6">
-			    {{ scraper.score }}
-			</div>
-		    </div>
-		    {% endfor %}
-		</div>
+		{% endif %}
 	    </div>
-	</li>
-	{% endfor %}
-    </ul>
-    <ul class="nav justify-content-center">
-	<li class="nav-item">
-	    <a class="nav-link" href="{{ page + 1 }}">Older</a>
-	</li>
-	<li class="nav-item">
-	    <a class="nav-link disabled">Last updated: {{ time_ago }}</a>
+	    <div class="flex-grow-1 ms-3">
+		<a href="https://imdb.com/title/{{ movie.tid }}" style="text-decoration: none; color:#212529">
+		    <h4>
+			{{ movie.title }}
+		    </h4>
+		</a>
+		<span style="border:1px solid; padding:3px; color:gray; border-radius:.25rem !important">{{ movie.rating }}</span> | {{ movie.runtime | conv_runtime }} | {{ movie.release | conv_releasedate }}
+		<br>
+		Director: <span class="badge rounded-pill bg-dark">{{ movie.director }}</span>
+		<br>
+		{% if movie.cast %}Starring: {% for cast in movie.cast %}<span class="badge rounded-pill bg-dark">{{cast}}</span>{% endfor %}{% endif %}
+		<br>
+		Plot: {{ movie.plot | conv_quotes }}
+		<br>
+		{% if movie.genre %}
+		Genre: {% for genre in movie.genre %}<span class="badge rounded-pill bg-secondary">{{genre}}</span>{% endfor %}
+		{% endif %}
+		<br>
+	    </div>
+	    <div class="ms-3">
+		<div class="row">
+		    <h4>
+			<span class="badge bg-primary">{{ movie.score }}</span>
+		    </h4>
+		</div>
+		{% for scraper in movie.scrapers | sort(attribute='score', reverse=True) %}
+		<div class="row">
+		    <div class="col-6">
+			<img src="{{ url_for('static', filename='scrapers/' + scraper.name + '.png')}}" style="height:1em">
+		    </div>
+		    <div class="col-6">
+			{{ scraper.score }}
+		    </div>
+		</div>
+		{% endfor %}
+	    </div>
+	</div>
+    </li>
+    {% endfor %}
+</ul>
+<ul class="nav justify-content-center">
+    <li class="nav-item">
+	<a class="nav-link" href="{{ page + 1 }}">Older</a>
+    </li>
+    <li class="nav-item">
+	<a class="nav-link disabled">Last updated: {{ time_ago }}</a>
 
-	</li>
-	<li class="nav-item">
-	    <a class="nav-link" href="{% if page %}/{{ page-1 }}{% endif %}">Newer</a>
-	</li>
-    </ul>
-    {% endblock body %}
+    </li>
+    <li class="nav-item">
+	<a class="nav-link" href="{% if page %}/{{ page-1 }}{% endif %}">Newer</a>
+    </li>
+</ul>
+{% endblock body %}
