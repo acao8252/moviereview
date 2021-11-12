@@ -20,7 +20,6 @@ def manage(args):
             "rottenTomatoes",
             "imdb",
             "tmdb",
-            "metacritic"
             ]
 
     # NOTE: probably don't need id since react frontend can just list order by score
@@ -39,15 +38,6 @@ def manage(args):
         # e.g. import scrapers.rottenTomatoesScraper
         movieList = import_module(f"scrapers.{scraper}").scrape()[0:10]
 
-        # for right now, movieList consists of a list of tuples in the form:
-        # (title,score,dateTimeScraped)
-        # NOTE: probably better to have tuples as (title, score, votes)
-        # since manager is already getting the date
-
-        # I don't think that this formatting is perfect. I think we can
-        # keep going anyway though.
-
-        # only using top ten since, again, to avoid ip blocking from imdb
         for movie in movieList:
 
             rawTitle = movie["title"] # for searching via the imdb api.
@@ -56,12 +46,6 @@ def manage(args):
                 score = 0
 
             votes = movie["votes"]
-
-
-            # TODO: fix this section
-            # these next items are all gonna be pulled using the imdb api,
-            # in order to fix any issues with duplicates or inconsistent data.
-            # I don't have the imdb api yet though, so it is TBD how this works
 
             imdb_dict = imdb_api(rawTitle)
             imdb_id = imdb_dict.get("tid")
@@ -75,10 +59,8 @@ def manage(args):
             genre = imdb_dict.get("genre")
             runtime = imdb_dict.get("runtime")
 
-            # will need to call another html page for each of their ratings
-            # only requires O(n) to get the three items above
-            # will require O(n^2) to just get the rating which could get us ip blocked
             scraperDict = {'name': scraper, 'score': score, 'votes': votes}
+            print(scraperDict)
 
             # now we need to determine if the movie we just scraped is already
             # in the data structure or not.
@@ -109,35 +91,23 @@ def manage(args):
                 # first, the weighted average:
                 tempScore1 = 0.0
                 tempTotalVotes = 0
+                scrapersWeight = len(scrapersList)
                 for s in alreadyStoredMovie['scrapers']:
-                    # these next 6 lines seem unimportant, but they fix
-                    # this one issue where the scrapers report that the score
-                    # is 'tbd', a string. We need numbers to compute the score,
-                    # so these strings really gum up the works.
                     tmpVotes = s['votes']
                     tmpScore = s['score']
-                    if (type(tmpVotes) != type(1)):
-                        tmpVotes = 1
-                    if (type(tmpScore) != type(1)):
-                        try:
-                            tmpScore = float(tmpScore)
-                        except ValueError as e:
-                            tmpScore = 0
                     tempScore1+=float(tmpVotes * tmpScore)
                     tempTotalVotes += tmpVotes
+                    scrapersWeight -= 1
                 tempScore1 = tempScore1/float(tempTotalVotes)
+                tempScore1 = tempScore1 - (tempScore1 / len(scrapersList) * scrapersWeight)
 
                 # next, the straight average:
                 tempScore2 = 0.0
                 for s in alreadyStoredMovie['scrapers']:
                     tmpScore = s['score']
-                    if(type(tmpScore)!=type(1)):
-                        try:
-                            tmpScore = float(tmpScore)
-                        except ValueError as e:
-                            tmpScore = 0
-                    tempScore2+=float(tmpScore)
+                    tempScore2 += float(tmpScore)
                 tempScore2 = tempScore2/float(len(alreadyStoredMovie['scrapers']))
+                tempScore2 = tempScore2 - (tempScore2 / len(scrapersList) * scrapersWeight)
 
                 # and store it in our data struct.
                 alreadyStoredMovie['score'] = round(((tempScore1 + tempScore2) / 2), 2)
@@ -146,6 +116,9 @@ def manage(args):
             else:
                 # we need to find a link to the youtube:
                 trailer = get_trailer(title)
+
+                # also need to give weighted score for movies with only one scraper
+                score = round(score/len(scrapersList), 2)
 
                 # then we need to add a new movie to the data object:
                 movieDict = {

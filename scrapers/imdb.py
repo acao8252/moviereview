@@ -20,7 +20,7 @@ def scrape():
 
         # some movies may not have votes; set to zero
         try:
-            votes = raw_movie.find("meta", {"itemprop":"ratingCount"})["content"]
+            votes = int(raw_movie.find("meta", {"itemprop":"ratingCount"})["content"])
         except TypeError:
             votes = 0
 
