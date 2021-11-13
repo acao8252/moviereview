@@ -89,9 +89,6 @@ def index(page=0):
         color_count += 1
 
 
-    from pprint import pprint
-    pprint(graph_y)
-    pprint(graph_x)
     time_ago = ago(recent['unixTime'])
     return render_template('index.html', recent=recent, graph_y=graph_y, graph_x=graph_x, page=page, time_ago=time_ago)
 
