@@ -20,6 +20,7 @@ def manage(args):
             "rottenTomatoes",
             "imdb",
             "tmdb",
+            "metacritic"
             ]
 
     # NOTE: probably don't need id since react frontend can just list order by score

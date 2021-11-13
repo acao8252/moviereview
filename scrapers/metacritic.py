@@ -10,15 +10,18 @@ def scrape():
 		title = movies.find('h3').text
 		#scrape the release_dates
 		release_date = movies.select('div.clamp-details span')[0].text
-		#scrape the meta scores
-		score = int(movies.select('a.metascore_anchor div')[0].text)
 		#scrape the user scores.
-		if (movies.select('a.metascore_anchor div')[2].text == "tbd")
-			votes = movies.select('a.metascore_anchor div')[2].text
-		else {
-			votes = int(movies.select('a.metascore_anchor div')[2].text)
-
-		}
+		if (movies.select('a.metascore_anchor div')[2].text == "tbd"):
+			score = 0
+			votes = 0
+		else:
+			score = int((float((movies.select('a.metascore_anchor div')[2]).text))*10)
+			movie_in_url = (title.replace(': ', '-').replace(' ', '-').replace("'", '')).lower()
+			movie_url = 'https://www.metacritic.com/movie/' + movie_in_url
+			print(movie_url)
+			moviesoup = get_soup(movie_url).find_all("span", {"class": "based_on"})[1].get_text(strip=True)
+			moviesoup = int(''.join(filter(str.isdigit, moviesoup)))
+			votes = moviesoup
 		movie_data = {
 		    "title": title,
 		    "score": score,
