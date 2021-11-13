@@ -1,1 +1,2 @@
-0 */6 * * * python manager.py
+# run manager every 6 hours
+0 */6 * * * python moviereview/manager.py
