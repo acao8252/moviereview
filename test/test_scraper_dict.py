@@ -1,3 +1,4 @@
+from importlib import import_module
 def test():
     scrapersList = [
             "rottenTomatoes",

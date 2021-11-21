@@ -14,6 +14,7 @@ def tester():
             continue
 
         test_file = test_file.replace('.py', '')
+        print(f'Testing: {test_file}')
 
         # e.g. import test.test_webconnection.py
         passed_test = import_module(f'test.{test_file}').test()
