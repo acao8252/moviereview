@@ -69,8 +69,11 @@ def imdb_api(query):
     # make sure the unix time is a nice whole number
     release = script.get("datePublished")
     if release:
-        release = datetime.strptime(release, "%Y-%m-%d").timestamp()
-        release = round(release)
+        try:
+            release = datetime.strptime(release, "%Y-%m-%d").timestamp()
+            release = round(release)
+        except:
+            release = 1
 
     # "duration" comes in the form of "PT1H37M"
     # convert that to 5820 seconds
