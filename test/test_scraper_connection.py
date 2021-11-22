@@ -1,5 +1,5 @@
-from utils.utils import get_soup
 import os
+import requests
 
 def test():
     listOfURLs = [
@@ -11,9 +11,13 @@ def test():
 
     accessedEverything = True
     for URL in listOfURLs:
-        response = os.system("ping -c 1 " + URL)
-        # reponse is zero if pinged, another number otherwise
-
-        accessedEverything = accessedEverything and (not response)
+        try:
+            html = requests.get(URL)
+            if(type(html.text) == type('test')):
+                accessedEverything = accessedEverything and True
+            else:
+                accessedEverything = accessedEverything and False
+        except:
+            accessedEverything = accessedEverything and False
 
     return accessedEverything
